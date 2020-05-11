@@ -1,0 +1,25 @@
+{
+  "name": "vlad_bot",
+  "version": "1.0.0",
+  "description": "Pizdets tovarishi.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BearLoggers/Vlad_BOT.git"
+  },
+  "author": "Ilya Zavyalov && Vasya Korzin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BearLoggers/Vlad_BOT/issues"
+  },
+  "homepage": "https://github.com/BearLoggers/Vlad_BOT#readme",
+  "dependencies": {
+    "@discordjs/opus": "^0.3.2",
+    "discord.js": "^12.2.0",
+    "erlpack": "github:discordapp/erlpack",
+    "zlib-sync": "^0.1.6"
+  }
+}

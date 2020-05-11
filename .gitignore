@@ -1,0 +1,7 @@
+node_modules
+.token
+link.txt
+
+*.exe
+
+KISSVK_PARSER/cache
