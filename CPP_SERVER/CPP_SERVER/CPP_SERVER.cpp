@@ -4,6 +4,7 @@
 #include <vector>
 #include <fstream>
 #include <thread>
+#include <chrono>
 
 // Для функции exec
 #include <cstdio>
@@ -107,27 +108,52 @@ int main()
 
 							std::cout << "Выбор: " << choice << std::endl;
 
-							std::string data, temp, url;
+							std::string data, temp, url, status;
 
 							switch(choice)
 							{
 							// Поиск по VK
 							case 1:
+							{
 								// FIXME: Это можно убить
 								packet >> data;
 								std::cout << "Клиент хочет искать по ВК: " << data << std::endl;
-								
+
 								//std::cout << "Внимание, сейчас будет флекс...\n";
 								temp = "cd ../../KISSVK_PARSER && phantomjs.exe loadmusicSilent.js \"" + data + "\"";
-								temp = exec(temp.c_str()); 
+
+								bool isFinished = false;
+								std::thread getSongInfoThread([&temp, &isFinished]()
+								{
+									temp = exec(temp.c_str());
+									isFinished = true;
+								});
+								getSongInfoThread.detach();
+
+								for (int i = 0; i < 100; i++) {
+									if (isFinished) break;
+									std::this_thread::sleep_for(std::chrono::milliseconds(150));
+								}
+								if (!isFinished)
+								{
+									std::cout << "Таймаут, убиваем поток c KISSVK\n";
+									getSongInfoThread.~thread();
+									status = "timeout";
+									packet.clear();
+									packet << status;
+									sockets[i]->send(packet);
+									continue;
+								}
 
 								// Сначала URL, потом после переноса строки автор и название
 								url = temp.substr(0, temp.find('\n'));
 
-								if (url.substr(0, 4) != "http") 
+								if (url.substr(0, 4) != "http")
 								{
 									std::cout << "Не удалось получить ссылку\n";
-									packet << "failed";
+									status = "failed";
+									packet.clear();
+									packet << status;
 									sockets[i]->send(packet);
 									//TODO: Проиграть БАААШЕР / Отправить клиенту обратно
 								}
@@ -137,11 +163,14 @@ int main()
 									file << url;
 									file.close();
 
-									packet << "success" << temp.substr(temp.find('\n') + 1);
+									status = "success";
+									packet.clear();
+									packet << status << temp.substr(temp.find('\n') + 1);
 									sockets[i]->send(packet);
 								}
 
 								break;
+							}
 
 							// Произвольная ссылка
 							case 2:

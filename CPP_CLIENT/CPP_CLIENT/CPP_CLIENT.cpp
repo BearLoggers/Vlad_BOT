@@ -40,7 +40,7 @@ int main()
 			socket.receive(packet);
 
 			packet >> string;
-			std::cout << string<<'\n';
+			std::cout << string <<'\n';
 
 			if (string == "success")
 			{

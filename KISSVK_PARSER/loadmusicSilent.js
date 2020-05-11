@@ -22,8 +22,8 @@ else {
 	var search_raw = system.args[1];
 	var processed = page.evaluate(function(s) { return encodeURI(s); }, search_raw);
 	
-	//console.log("Searching for: " + system.args[1]);
-	//console.log("(processed: " + processed + ")");
+	// console.log("Searching for: " + system.args[1]);
+	// console.log("(processed: " + processed + ")");
 	
 	url = "https://kissvk.com/?search=" + processed;
 	openPage();
@@ -32,20 +32,27 @@ else {
 function openPage() {
 	page.open(url, function(status) {
 		if (status) {
-			//console.log('Aeeee');
+			// console.log('Aeeee');
 			
 			var url = page.evaluate(function() {
 				return document.querySelector('body > div.main-container.pt-3 > div:nth-child(3) > table > tbody > tr:nth-child(1) > td.align-middle.pr-0 > a').href;
 			});
 			console.log(url);
-
-			let startIndex = url.indexOf("artist=") + "artist=".length + 1;
-			let artist = decodeURI(url.substring(startIndex, url.indexOf('&', startIndex)));
-
-			startIndex = url.indexOf("title=") + "title=".length + 1;
-			let title = decodeURI(url.substring(startIndex, url.indexOf('&', startIndex)));
 			
-			console.log(`${artist} - ${title}`);
+			if (url.length && url.length > 7) {
+
+				var startIndex = url.indexOf("artist=") + "artist=".length;
+				var artist = decodeURI(url.substring(startIndex, url.indexOf('&', startIndex)));
+
+				artist = artist.replace(/%2C/gi, "");
+
+				startIndex = url.indexOf("title=") + "title=".length;
+				var title = decodeURI(url.substring(startIndex, url.indexOf('&', startIndex)));
+				
+				title = title.replace(/%2C/gi, "");
+				
+				console.log(artist + " - " + title);
+			}
 		}
 		else {
 			//console.log('Bliet :(');
