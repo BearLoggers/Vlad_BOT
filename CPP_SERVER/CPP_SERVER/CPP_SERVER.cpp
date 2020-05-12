@@ -6,27 +6,17 @@
 #include <thread>
 #include <chrono>
 
-// Для функции exec
-#include <cstdio>
-#include <memory>
-#include <stdexcept>
-#include <string>
-#include <array>
+#include <locale>
+#include <codecvt>
+#include <io.h>
+#include <fcntl.h>
 
-std::string exec(const char* cmd)
+const int port = 25565;
+
+bool fileExists(const char* fileName)
 {
-    std::array<char, 128> buffer;
-    std::string result;
-    std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(cmd, "r"), _pclose);
-    if (!pipe)
-	{
-        throw std::runtime_error("popen() failed!");
-    }
-    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) 
-	{
-        result += buffer.data();
-    }
-    return result;
+	std::ifstream infile(fileName);
+	return infile.good();
 }
 
 int main()
@@ -39,7 +29,7 @@ int main()
 
 	std::vector<sf::TcpSocket*> sockets;
 
-	if (listener.listen(812) != sf::Socket::Done)
+	if (listener.listen(port) != sf::Socket::Done)
 	{
 		std::cout << "Err.";	
 		exit(1);
@@ -54,7 +44,7 @@ int main()
 
 	nodeThread.detach();
 
-	std::cout << "Сервер слушает 812\n";
+	std::cout << "Сервер слушает " << port << '\n';
 	selector.add(listener);
 
 	while (true)
@@ -108,7 +98,7 @@ int main()
 
 							std::cout << "Выбор: " << choice << std::endl;
 
-							std::string data, temp, url, status;
+							std::string data, temp, url;
 
 							switch(choice)
 							{
@@ -119,55 +109,35 @@ int main()
 								packet >> data;
 								std::cout << "Клиент хочет искать по ВК: " << data << std::endl;
 
-								//std::cout << "Внимание, сейчас будет флекс...\n";
-								temp = "cd ../../KISSVK_PARSER && phantomjs.exe loadmusicSilent.js \"" + data + "\"";
+								// const std::locale utf8_locale = std::locale(std::locale(), new std::codecvt_utf8<wchar_t>());
+								file.open("../../JS_BOT/vkquery.txt");
+								file << data;
+								file.close();
 
-								bool isFinished = false;
-								std::thread getSongInfoThread([&temp, &isFinished]()
-								{
-									temp = exec(temp.c_str());
-									isFinished = true;
-								});
-								getSongInfoThread.detach();
 
-								for (int i = 0; i < 100; i++) {
-									if (isFinished) break;
-									std::this_thread::sleep_for(std::chrono::milliseconds(150));
-								}
-								if (!isFinished)
-								{
-									std::cout << "Таймаут, убиваем поток c KISSVK\n";
-									getSongInfoThread.~thread();
-									status = "timeout";
+								// Ждём результата от Node.JS
+								std::cout << "Я ждун...\n";
+								while (!fileExists("vksearch.status"));
+								std::cout << "Больше нет...\n";
+								std::ifstream status("vksearch.status");
+								std::string string;
+								std::getline(status, string, '\n');
+								if (string == "success") {
+									// Название и автор
+									std::getline(status, string, '\n');
+
 									packet.clear();
-									packet << status;
-									sockets[i]->send(packet);
-									continue;
-								}
-
-								// Сначала URL, потом после переноса строки автор и название
-								url = temp.substr(0, temp.find('\n'));
-
-								if (url.substr(0, 4) != "http")
-								{
-									std::cout << "Не удалось получить ссылку\n";
-									status = "failed";
-									packet.clear();
-									packet << status;
-									sockets[i]->send(packet);
-									//TODO: Проиграть БАААШЕР / Отправить клиенту обратно
-								}
-								else
-								{
-									file.open("../../JS_BOT/link.txt");
-									file << url;
-									file.close();
-
-									status = "success";
-									packet.clear();
-									packet << status << temp.substr(temp.find('\n') + 1);
+									packet << "success" << string;
 									sockets[i]->send(packet);
 								}
+								else {
+									packet.clear();
+									packet << "failed" << string;
+									sockets[i]->send(packet);
+								}
+
+								status.close();
+								system("del vksearch.status");
 
 								break;
 							}

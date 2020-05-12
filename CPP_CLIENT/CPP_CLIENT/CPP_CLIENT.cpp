@@ -11,7 +11,7 @@ int main()
 	std::string string;
 
 	sf::TcpSocket socket;
-	sf::Socket::Status status = socket.connect("localhost", 812);
+	sf::Socket::Status status = socket.connect("localhost", 25565);
 
 	if (status != sf::Socket::Done)
 	{
@@ -45,7 +45,7 @@ int main()
 			if (string == "success")
 			{
 				packet >> string;
-				std::cout << string;
+				std::cout << "Проигрывается: '" << string << "'\n";
 			}
 			
 			break;
