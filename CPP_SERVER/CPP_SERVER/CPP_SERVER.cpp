@@ -1,4 +1,4 @@
-﻿//это сервер
+//это сервер
 #include <iostream>
 #include <SFML/Network.hpp>
 #include <vector>
@@ -10,8 +10,6 @@
 #include <codecvt>
 #include <io.h>
 #include <fcntl.h>
-
-const int port = 25565;
 
 bool fileExists(const char* fileName)
 {
@@ -28,6 +26,10 @@ int main()
 	std::ofstream file;
 
 	std::vector<sf::TcpSocket*> sockets;
+	
+	int port;
+	std::cout << "Введите порт: ";
+	std::cin >> port;
 
 	if (listener.listen(port) != sf::Socket::Done)
 	{
@@ -109,16 +111,14 @@ int main()
 								packet >> data;
 								std::cout << "Клиент хочет искать по ВК: " << data << std::endl;
 
-								// const std::locale utf8_locale = std::locale(std::locale(), new std::codecvt_utf8<wchar_t>());
 								file.open("../../JS_BOT/vkquery.txt");
 								file << data;
 								file.close();
 
-
 								// Ждём результата от Node.JS
-								std::cout << "Я ждун...\n";
+								// std::cout << "Я ждун...\n";
 								while (!fileExists("vksearch.status"));
-								std::cout << "Больше нет...\n";
+								// std::cout << "Больше нет...\n";
 								std::ifstream status("vksearch.status");
 								std::string string;
 								std::getline(status, string, '\n');

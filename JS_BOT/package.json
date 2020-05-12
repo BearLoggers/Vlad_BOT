@@ -20,6 +20,7 @@
     "@discordjs/opus": "^0.3.2",
     "discord.js": "^12.2.0",
     "erlpack": "github:discordapp/erlpack",
+    "iconv": "^3.0.0",
     "nightmare": "^3.0.2",
     "zlib-sync": "^0.1.6"
   },

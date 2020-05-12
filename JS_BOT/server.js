@@ -3,6 +3,7 @@ const client = new Discord.Client();
 const fs = require('fs');
 
 const Nightmare = require('nightmare');
+const Iconv = require('iconv').Iconv;
 
 const fetchOptions = {
     headers: {
@@ -43,7 +44,13 @@ fs.watchFile("link.txt", (curr, prev) => {
 fs.watchFile("vkquery.txt", (curr, prev) => {
     console.log("vkquery был изменен");
 
-    let query = encodeURI(fs.readFileSync("vkquery.txt", "utf8"));
+    let buffer = fs.readFileSync("vkquery.txt");
+    // console.log("buffer", buffer);
+    let converter = Iconv('CP866', 'UTF-8');
+    let converted = converter.convert(buffer);
+    // console.log("converted", converted);
+
+    let query = encodeURI(converted);
     console.log(`Прочитанный query: '${query}'`);
     if (query) {
         const myMusicButton = 'body > div.main-container.pt-3 > div:nth-child(3) > div:nth-child(2) > div.btn-group > button.btn.btn-outline-primary';
