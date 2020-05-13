@@ -1,4 +1,4 @@
-//это сервер
+﻿//это сервер
 #include <iostream>
 #include <SFML/Network.hpp>
 #include <vector>
@@ -19,30 +19,30 @@ bool fileExists(const char* fileName)
 
 int main()
 {
-	setlocale(LC_ALL, "rus"); 
+	setlocale(LC_ALL, "rus");
 	sf::TcpListener listener;
 	sf::SocketSelector selector;
 
 	std::ofstream file;
 
 	std::vector<sf::TcpSocket*> sockets;
-	
+
 	int port;
 	std::cout << "Введите порт: ";
 	std::cin >> port;
 
 	if (listener.listen(port) != sf::Socket::Done)
 	{
-		std::cout << "Err.";	
+		std::cout << "Err.";
 		exit(1);
 	}
 
 	// Создаем поток, в котором запускаем ноду
-	std::thread nodeThread([]() 
-	{
-		system("cd ../../JS_BOT && node ./server.js");
-		//system("node ./server.js");
-	});
+	std::thread nodeThread([]()
+		{
+			system("cd ../../JS_BOT && node ./server.js");
+			//system("node ./server.js");
+		});
 
 	nodeThread.detach();
 
@@ -73,7 +73,7 @@ int main()
 				}
 			}
 			// Проходимся по добавленым сокетам и определяем, кто из них сработал
-			else 
+			else
 			{
 				for (int i = 0; i < sockets.size(); i++)
 				{
@@ -85,7 +85,7 @@ int main()
 						if (status == sf::Socket::Disconnected)
 						{
 							selector.remove(*sockets[i]);
-							delete sockets[i];							
+							delete sockets[i];
 							sockets.erase(sockets.begin() + i);
 							std::cout << "Клиент удачно отключился.\n";
 							continue;
@@ -102,9 +102,9 @@ int main()
 
 							std::string data, temp, url;
 
-							switch(choice)
+							switch (choice)
 							{
-							// Поиск по VK
+								// Поиск по VK
 							case 1:
 							{
 								// FIXME: Это можно убить
@@ -157,12 +157,12 @@ int main()
 								break;
 							}
 						}
-						else 
+						else
 						{
 							// Ошибка при приёме пакета
 							std::cout << "Ошибка при приёме пакета :(\n";
 						}
-					}				
+					}
 				}
 			}
 		}
