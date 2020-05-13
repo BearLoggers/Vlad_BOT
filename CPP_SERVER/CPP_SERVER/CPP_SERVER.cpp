@@ -1,5 +1,4 @@
-﻿//это сервер
-#include <iostream>
+﻿#include <iostream>
 #include <SFML/Network.hpp>
 #include <vector>
 #include <fstream>
@@ -11,11 +10,13 @@
 #include <io.h>
 #include <fcntl.h>
 
-bool fileExists(const char* fileName)
+
+bool file_exists(const char* fileName)
 {
 	std::ifstream infile(fileName);
 	return infile.good();
 }
+
 
 int main()
 {
@@ -29,7 +30,7 @@ int main()
 
 	int port;
 	std::cout << "Введите порт: ";
-	std::cin >> port;
+	std::cin >> port;	// Указываем порт, который открываем для работы
 
 	if (listener.listen(port) != sf::Socket::Done)
 	{
@@ -37,19 +38,17 @@ int main()
 		exit(1);
 	}
 
-	// Создаем поток, в котором запускаем ноду
-	std::thread nodeThread([]()
-		{
-			system("cd ../../JS_BOT && node ./server.js");
-			//system("node ./server.js");
-		});
+	std::thread nodeThread([]() // Создаем поток, в котором запускаем node
+	{
+		system("cd ../../JS_BOT && node ./server.js");
+	});
 
 	nodeThread.detach();
 
 	std::cout << "Сервер слушает " << port << '\n';
 	selector.add(listener);
 
-	while (true)
+	while (true) // сервер работает в бесконечном цикле
 	{
 		if (selector.wait())
 		{
@@ -62,7 +61,6 @@ int main()
 				{
 					// Ошибка при подключении
 					std::cout << "Что-то пошло не так :(" << std::endl;
-					//sockets.erase(socket);
 				}
 				else
 				{
@@ -79,9 +77,8 @@ int main()
 				{
 					if (selector.isReady(*sockets[i]))
 					{
-						// Принимаем входящий пакет от сокета
 						sf::Packet packet;
-						sf::Socket::Status status = sockets[i]->receive(packet);
+						sf::Socket::Status status = sockets[i]->receive(packet); // Принимаем входящий пакет от сокета
 						if (status == sf::Socket::Disconnected)
 						{
 							selector.remove(*sockets[i]);
@@ -93,9 +90,7 @@ int main()
 						else if (status == sf::Socket::Done)
 						{
 							std::cout << "Принял немного данных: " << std::endl;
-							// Сначала понимаем, что выбрал пользователь
-							short choice;
-							// FIXME: Это можно убить
+							short choice;	// Выбор метода воспроизведения от пользователя.
 							packet >> choice;
 
 							std::cout << "Выбор: " << choice << std::endl;
@@ -104,33 +99,33 @@ int main()
 
 							switch (choice)
 							{
-								// Поиск по VK
+							// Поиск по VK
 							case 1:
 							{
-								// FIXME: Это можно убить
-								packet >> data;
+								packet >> data;  // строка поиска по аудио в вк
 								std::cout << "Клиент хочет искать по ВК: " << data << std::endl;
 
 								file.open("../../JS_BOT/vkquery.txt");
 								file << data;
 								file.close();
 
-								// Ждём результата от Node.JS
-								// std::cout << "Я ждун...\n";
-								while (!fileExists("vksearch.status"));
-								// std::cout << "Больше нет...\n";
+								
+								std::cout << "Ожидаю ответа от Node.JS...\n";
+								while (!file_exists("vksearch.status"));		// Ждём результата от Node.JS
+								std::cout << "Дождался!\n";
 								std::ifstream status("vksearch.status");
 								std::string string;
 								std::getline(status, string, '\n');
-								if (string == "success") {
-									// Название и автор
-									std::getline(status, string, '\n');
+								if (string == "success")
+								{
+									std::getline(status, string, '\n');		// Название и автор
 
 									packet.clear();
 									packet << "success" << string;
 									sockets[i]->send(packet);
 								}
-								else {
+								else
+								{
 									packet.clear();
 									packet << "failed" << string;
 									sockets[i]->send(packet);
@@ -144,8 +139,7 @@ int main()
 
 							// Произвольная ссылка
 							case 2:
-								// FIXME: Это можно убить
-								packet >> data;
+								packet >> data;		// ссылка
 								std::cout << "Клиент хочет воспроизводить по ссылке: " << data << std::endl;
 								file.open("../../JS_BOT/link.txt");
 								file << data;
@@ -153,14 +147,13 @@ int main()
 								break;
 
 							default:
-								std::cout << "Оу, да у вас модифицированный клиентб\n";
+								std::cout << "У пользователя обнаружен модифицированный клиент.\n";
 								break;
 							}
 						}
 						else
 						{
-							// Ошибка при приёме пакета
-							std::cout << "Ошибка при приёме пакета :(\n";
+							std::cout << "Ошибка при приёме пакета!\n";
 						}
 					}
 				}
@@ -168,7 +161,7 @@ int main()
 		}
 		else
 		{
-			std::cout << "Ошибка во время ожидания (какая?).\n";
+			std::cout << "Ошибка во время ожидания.\n";
 		}
 	}
 }
