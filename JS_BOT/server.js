@@ -120,23 +120,23 @@ function playExternal(link) {
 client.on('message', msg => {
     if (msg.content === 'ping') {
         msg.reply(`pong ${new Date()}`);
-    } else if (msg.content === 'влад готовит хуёво') {
-        msg.reply('Да бля');
-    } else if (msg.content === 'подошёл') {
-        console.log('Меня позвали, ', msg.member.voice.channel);
-        if (msg.member.voice.channel) {
+    } else if (msg.content === 'c0nnect') {
+        console.log('Меня позвал, ', msg.member.voice.channel);
+        if (msg.member.voice.channel)
+		{
             msg.member.voice.channel.join()
                 .then(connection => {
-                    connection.play('https://i15.kissvk.com/api/song/download/get/10/Avicii-The%20Nights-kissvk.com.mp3?origin=kissvk.com&url=sid%3A%2F%2F585381466_456239017_6a9b9a849ef2603cde_bdbb0f68b93fe28dc7&artist=Avicii&title=The%20Nights&index=0&future_urls=');
+                    connection.play('hello.mp3');
                 }).catch(err => {
                     console.log(err);
                     msg.reply('Маслина = словлена, ', err);
                 });
-
-        } else {
-            msg.reply('адрес скажи сначала');
+        } 
+		else 
+		{
+            msg.reply('Куда?');
         }
-    } else if (msg.content === 'ушёл') {
+    } else if (msg.content === 'disc0nnect') {
         if (msg.member.voice.channel)
             msg.member.voice.channel.leave();
     }

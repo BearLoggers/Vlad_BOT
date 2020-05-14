@@ -38,7 +38,7 @@ void sendAndCheck(sf::TcpSocket& socket, sf::Packet& packet)
 int main()
 {
 	setlocale(LC_ALL, "rus");
-	short choice = 0;
+	char choice = 0;
 	std::string string, temp;
 
 	std::cout << "Введите IP (Enter для localhost): ";
@@ -61,23 +61,24 @@ int main()
 		std::cout << '.';
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
-	std::cout << "успешна!\n";
+	std::cout << " успешна!\n";
 
 	while (true)
 	{
-		std::cout << "Чего пожелаете?\n 1 - Поиск по VK.\n 2 - Проигрывание с сырой ссылки.\n";
+		choice = 0;
+		std::cout << "\n\nЧего пожелаете?\n 1 - Поиск по VK.\n 2 - Проигрывание с сырой ссылки.\n";
 		std::cin >> choice;
 		sf::Packet packet;
 
 		switch (choice)
 		{
-		case 1:
+		case '1':
 			std::cout << "Введите название композиции: ";
 			std::cin.ignore();
 			std::getline(std::cin, string);
 			if (string.empty())
 				continue;
-			packet << choice << string;
+			packet << short(1) << string;
 			sendAndCheck(socket, packet);
 			
 			std::cout << "Ожидаю ответа от сервера... ";
@@ -95,12 +96,13 @@ int main()
 			break;
 
 
-		case 2:
+		case '2':
+			choice = 2;
 			std::cout << "Введите ссылку: ";
 			std::cin >> string;
 			if (string.empty())
 				continue;
-			packet << choice << string;
+			packet << short(2) << string;
 			sendAndCheck(socket, packet);
 			break;
 

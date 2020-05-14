@@ -47,12 +47,14 @@ int main()
 
 	std::cout << "Сервер слушает " << port << '\n';
 	selector.add(listener);
+	
 
 	while (true) // сервер работает в бесконечном цикле
 	{
+		std::cout << "\n";
 		if (selector.wait())
 		{
-			std::cout << "сервер дождался" << std::endl;
+			std::cout << "\nСервер дождался\n";
 			if (selector.isReady(listener))
 			{
 				sf::TcpSocket* socket = new sf::TcpSocket;
@@ -60,12 +62,12 @@ int main()
 				if (listener.accept(*socket) != sf::Socket::Done)
 				{
 					// Ошибка при подключении
-					std::cout << "Что-то пошло не так :(" << std::endl;
+					std::cout << "Что-то пошло не так :(\n";
 				}
 				else
 				{
 					// Подключение успешно, добавляем к прослушке
-					std::cout << "Получил нового клиента" << std::endl;
+					std::cout << "Получил нового клиента\n";
 					selector.add(*socket);
 					sockets.push_back(socket);
 				}
@@ -84,17 +86,17 @@ int main()
 							selector.remove(*sockets[i]);
 							delete sockets[i];
 							sockets.erase(sockets.begin() + i);
-							std::cout << "Клиент удачно отключился.\n";
+							std::cout << "\t\t\tКлиент "<< i <<" удачно отключился.\n";
 							continue;
 						}
 						else if (status == sf::Socket::Done)
 						{
-							std::cout << "Принял немного данных: " << std::endl;
+							std::cout << "Принял немного данных: \n";
 							short choice;	// Выбор метода воспроизведения от пользователя.
 							packet >> choice;
 
-							std::cout << "Выбор: " << choice << std::endl;
-
+							std::cout << "Выбор: " << choice << '\n';
+ 
 							std::string data, temp, url;
 
 							switch (choice)
@@ -103,16 +105,19 @@ int main()
 							case 1:
 							{
 								packet >> data;  // строка поиска по аудио в вк
-								std::cout << "Клиент хочет искать по ВК: " << data << std::endl;
+								std::cout << "Клиент "<< i <<" хочет искать по ВК: " << data << '\n';
 
 								file.open("../../JS_BOT/vkquery.txt");
 								file << data;
 								file.close();
 
-								
+								std::cout << ",,,,,,,,,,,\n";
 								std::cout << "Ожидаю ответа от Node.JS...\n";
 								while (!file_exists("vksearch.status"));		// Ждём результата от Node.JS
 								std::cout << "Дождался!\n";
+								std::cout << ",,,,,,,,,,,\n";
+
+
 								std::ifstream status("vksearch.status");
 								std::string string;
 								std::getline(status, string, '\n');
@@ -140,7 +145,7 @@ int main()
 							// Произвольная ссылка
 							case 2:
 								packet >> data;		// ссылка
-								std::cout << "Клиент хочет воспроизводить по ссылке: " << data << std::endl;
+								std::cout << "Клиент " << i << " хочет воспроизводить по ссылке: " << data << '\n';
 								file.open("../../JS_BOT/link.txt");
 								file << data;
 								file.close();
